@@ -6,4 +6,14 @@ html(lang="en")
   body
     h1= "Hello World"
     p Welcome, #{message}
+
+    form(action='/login', method='post').center
+      div
+        label Username:
+        input(type='text', name='username')
+      div
+        label Password:
+        input(type='password', name='password')
+      div
+        input(type='submit', value='Log In')
     

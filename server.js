@@ -4,9 +4,9 @@ let pug = require('pug')
 let session = require('express-session')
 let passport = require('passport')
 let ObjectId = require('mongodb').ObjectID
-let mongo = require('mongodb').MongoClient({useUnifiedTopology: true })
+let mongo = require('mongodb').MongoClient
 let LocalStrategy = require('passport-local');
-
+let bodyParser = require('body-parser')
 // when you wanna use env , u need to install dot env and configure it in your app
 require('dotenv').config()
 // console.log(process.env.VARIABLE_ONE)
@@ -25,20 +25,20 @@ app.set('view engine','pug')
 app.set('views','./views')
 
 
-
-
 let uri = 'mongodb+srv://user1:'+process.env.PW+'@fcc-mongodb-project.ayioa.mongodb.net/localdb?retryWrites=true&w=majority'
 // console.log(uri)
-mongo.connect(uri,(err,db)=>{
+mongo.connect(uri,(err,client)=>{
     if(err){
         console.log(err)
     }else{
+
+        let db = client.db('localdb')
         // if connect to db successfully
         app.listen(3000)
 
         app.get('/',(req,res)=>{
-            req.session.count++
-            console.log(req.session)
+            // req.session.count++
+            // console.log(req.session)
             res.render("index",{message: "Please register or login"})
         })
 
@@ -77,7 +77,18 @@ mongo.connect(uri,(err,db)=>{
             }
         )
 
-        passport.user(findUserDocument)
+        passport.use(findUserDocument)
+
+        app.post('/login',
+            bodyParser.urlencoded({extended:false})),
+            passport.authenticate('local',{failureRedirect:'/'}),
+            (req,res)=>{
+                console.log(req.user)
+                res.render('signed_in',req.user.name)
+            }
+
+
+
 
     }
 })
